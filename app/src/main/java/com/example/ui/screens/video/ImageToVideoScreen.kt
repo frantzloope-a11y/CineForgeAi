@@ -1,6 +1,9 @@
 package com.example.ui.screens.video
 
+import android.app.Activity
 import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import com.example.ads.UnityAdsManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Icon
@@ -71,6 +75,7 @@ fun ImageToVideoScreen(
     viewModel: MainViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val genState by viewModel.ptvGenState.collectAsState()
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -465,10 +470,10 @@ fun ImageToVideoScreen(
                                     val isSelected = duration == selectedDuration
                                     Surface(
                                         shape = RoundedCornerShape(12.dp),
-                                        color = if (isSelected) ElectricIndigo.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surfaceVariant,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                                         border = BorderStroke(
                                             width = if (isSelected) 1.5.dp else 1.dp,
-                                            color = if (isSelected) CyanAccent else MaterialTheme.colorScheme.outlineVariant
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                                         ),
                                         modifier = Modifier
                                             .weight(1f)
@@ -481,7 +486,7 @@ fun ImageToVideoScreen(
                                         ) {
                                             Text(
                                                 text = "${duration}s",
-                                                color = if (isSelected) CyanAccent else MaterialTheme.colorScheme.onSurface,
+                                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                                 fontSize = 14.sp
                                             )
@@ -506,25 +511,93 @@ fun ImageToVideoScreen(
                         Spacer(modifier = Modifier.height(28.dp))
                     }
 
-                    // Main Action CTA: ANIMATE IMAGE
+                    // Main Action CTA: ANIMATE IMAGE (triggers Interstitial ad after every 2 videos)
                     item {
                         GradientButton(
                             text = "ANIMATE IMAGE ✦",
                             onClick = {
                                 selectedImageUri?.let { uri ->
-                                    viewModel.animateImageToVideo(
-                                        imageUri = uri,
-                                        motionPrompt = motionPrompt,
-                                        ratio = selectedRatio,
-                                        duration = selectedDuration,
-                                        motionIntensity = selectedIntensity
-                                    )
+                                    val activity = context as? Activity
+                                    val launchGen = {
+                                        viewModel.animateImageToVideo(
+                                            imageUri = uri,
+                                            motionPrompt = motionPrompt,
+                                            ratio = selectedRatio,
+                                            duration = selectedDuration,
+                                            motionIntensity = selectedIntensity
+                                        )
+                                    }
+
+                                    val shouldShowAd = viewModel.shouldShowInterstitialAd()
+                                    if (shouldShowAd && activity != null) {
+                                        UnityAdsManager.showInterstitial(activity, onAdClosed = launchGen)
+                                    } else {
+                                        launchGen()
+                                    }
                                 }
                             },
                             enabled = selectedImageUri != null,
                             height = 58.dp,
                             testTag = "animate_image_button"
                         )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Rewarded Ad Cinema Pass: Unlock 10s Extended Animation
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    val activity = context as? Activity
+                                    if (activity != null) {
+                                        UnityAdsManager.showRewarded(
+                                            activity = activity,
+                                            onRewardEarned = {
+                                                selectedDuration = 10
+                                                selectedIntensity = "Dynamic"
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    "✦ 10s Extended Animation Unlocked for Free!",
+                                                    android.widget.Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        )
+                                    }
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 13.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Watch Ad to Unlock 10s Extended Motion",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Free Dynamic Upgrade · Powered by Unity Rewarded Ads",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(30.dp))
                     }

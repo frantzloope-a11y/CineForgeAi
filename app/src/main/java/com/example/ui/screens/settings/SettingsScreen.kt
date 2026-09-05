@@ -34,7 +34,10 @@ import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,6 +55,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.app.Activity
+import com.example.ads.UnityAdsManager
 import com.example.data.local.ThemeMode
 import com.example.ui.components.SectionHeader
 import com.example.ui.components.SettingsRow
@@ -339,6 +344,126 @@ fun SettingsScreen(
                     ) {
                         Text("App Version", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("1.0.0", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Unity Monetization Card
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF0F172A).copy(alpha = 0.8f),
+                border = BorderStroke(1.dp, com.example.ui.theme.AmberPrimary.copy(alpha = 0.35f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    val isInitialized by UnityAdsManager.isInitialized.collectAsState()
+                    val lastStatus by UnityAdsManager.lastStatus.collectAsState()
+                    val isInterstitialLoaded by UnityAdsManager.isInterstitialLoaded.collectAsState()
+                    val isRewardedLoaded by UnityAdsManager.isRewardedLoaded.collectAsState()
+                    var isTestMode by remember { mutableStateOf(UnityAdsManager.isTestMode) }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Unity Monetization",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = com.example.ui.theme.AmberBright
+                        )
+                        Text(
+                            text = if (isInitialized) "● Initialized" else "○ Offline",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isInitialized) Color(0xFF10B981) else Color(0xFFEF4444)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Game ID: ${UnityAdsManager.GAME_ID}\nBanners, Interstitials & Rewarded Video",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Status: $lastStatus\nReady: Interstitial ${if (isInterstitialLoaded) "✓" else "⏳"}, Rewarded ${if (isRewardedLoaded) "✓" else "⏳"}",
+                        fontSize = 11.sp,
+                        color = com.example.ui.theme.AmberBright,
+                        lineHeight = 14.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Test mode toggle for developer testing
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Test Ads Mode (Simulate Ads)",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = isTestMode,
+                            onCheckedChange = { newMode ->
+                                isTestMode = newMode
+                                UnityAdsManager.initialize(context, testMode = newMode)
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = com.example.ui.theme.AmberPrimary,
+                                checkedTrackColor = com.example.ui.theme.AmberPrimary.copy(alpha = 0.5f)
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                val act = context as? Activity
+                                if (act != null) {
+                                    UnityAdsManager.showInterstitial(act)
+                                }
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, Color(0x33FFFFFF)),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Test Interstitial", fontSize = 11.sp, color = Color.White)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                val act = context as? Activity
+                                if (act != null) {
+                                    UnityAdsManager.showRewarded(
+                                        activity = act,
+                                        onRewardEarned = {
+                                            Toast.makeText(context, "✦ Rewarded Ad completed! Reward granted.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, com.example.ui.theme.AmberPrimary.copy(alpha = 0.5f)),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Test Rewarded", fontSize = 11.sp, color = com.example.ui.theme.AmberBright)
+                        }
                     }
                 }
             }

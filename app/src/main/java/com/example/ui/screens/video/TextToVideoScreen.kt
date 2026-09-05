@@ -52,6 +52,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.app.Activity
+import com.example.ads.UnityAdsManager
+import com.example.ads.UnityBannerAd
 import com.example.ui.components.AspectRatioSelector
 import com.example.ui.components.GenerationLoader
 import com.example.ui.components.GradientButton
@@ -479,10 +482,10 @@ fun TextToVideoScreen(
                                     val isSelected = q == selectedQuality
                                     Surface(
                                         shape = RoundedCornerShape(12.dp),
-                                        color = if (isSelected) ElectricIndigo.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surfaceVariant,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                                         border = BorderStroke(
                                             width = if (isSelected) 1.5.dp else 1.dp,
-                                            color = if (isSelected) CyanAccent else MaterialTheme.colorScheme.outlineVariant
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                                         ),
                                         modifier = Modifier
                                             .weight(1f)
@@ -496,7 +499,7 @@ fun TextToVideoScreen(
                                         ) {
                                             Text(
                                                 text = q,
-                                                color = if (isSelected) CyanAccent else MaterialTheme.colorScheme.onSurface,
+                                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                                 fontSize = 13.sp
                                             )
@@ -509,25 +512,93 @@ fun TextToVideoScreen(
                         Spacer(modifier = Modifier.height(28.dp))
                     }
 
-                    // Main Action CTA: GENERATE VIDEO
+                    // Main Action CTA: GENERATE VIDEO (triggers Interstitial ad after every 2 videos)
                     item {
                         GradientButton(
                             text = "GENERATE VIDEO ✦",
                             onClick = {
-                                viewModel.generateTextToVideo(
-                                    prompt = prompt.ifBlank { "Cinematic aerial view of futuristic city illuminated by neon lights and flying vehicles at dusk" },
-                                    ratio = selectedRatio,
-                                    duration = selectedDuration,
-                                    style = selectedStyle,
-                                    cameraMotion = selectedCameraMotion,
-                                    quality = selectedQuality,
-                                    negativePrompt = negativePrompt.ifBlank { null }
-                                )
+                                val activity = context as? Activity
+                                val launchGen = {
+                                    viewModel.generateTextToVideo(
+                                        prompt = prompt.ifBlank { "Cinematic aerial view of futuristic city illuminated by neon lights and flying vehicles at dusk" },
+                                        ratio = selectedRatio,
+                                        duration = selectedDuration,
+                                        style = selectedStyle,
+                                        cameraMotion = selectedCameraMotion,
+                                        quality = selectedQuality,
+                                        negativePrompt = negativePrompt.ifBlank { null }
+                                    )
+                                }
+
+                                // Show interstitial ad only every 2 video creations as requested
+                                val shouldShowAd = viewModel.shouldShowInterstitialAd()
+                                if (shouldShowAd && activity != null) {
+                                    UnityAdsManager.showInterstitial(activity, onAdClosed = launchGen)
+                                } else {
+                                    launchGen()
+                                }
                             },
                             enabled = true,
                             height = 58.dp,
                             testTag = "generate_video_button"
                         )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // High eCPM Rewarded Ad Focus Card for 4K Ultra Boost (iOS-inspired clean card)
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    val activity = context as? Activity
+                                    if (activity != null) {
+                                        UnityAdsManager.showRewarded(
+                                            activity = activity,
+                                            onRewardEarned = {
+                                                selectedQuality = "Ultra"
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    "✦ Ultra 4K Quality Unlocked for Free!",
+                                                    android.widget.Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        )
+                                    }
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 13.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Watch Ad to Unlock Ultra 4K Cinema Pass",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Free Instant Upgrade · Powered by Unity Rewarded Ads",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(30.dp))
                     }

@@ -9,8 +9,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -38,6 +40,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ads.UnityAdsManager
+import com.example.ads.UnityBannerAd
 import com.example.ui.navigation.BottomNavItems
 import com.example.ui.navigation.Screen
 import com.example.ui.screens.about.AboutScreen
@@ -64,6 +68,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Initialize Unity Ads with Game ID: 800367852 (live production earning)
+        UnityAdsManager.initialize(this, testMode = false)
+
         setContent {
             val mainViewModel: MainViewModel = viewModel()
             val themeMode by mainViewModel.themeMode.collectAsState()
@@ -100,11 +108,19 @@ fun MainAppContent(viewModel: MainViewModel) {
                 enter = slideInVertically(initialOffsetY = { it }),
                 exit = slideOutVertically(targetOffsetY = { it })
             ) {
-                NavigationBar(
-                    containerColor = Color(0xFF0A0A0A).copy(alpha = 0.96f),
-                    tonalElevation = 0.dp,
-                    modifier = Modifier.testTag("bottom_navigation_bar")
+                Column(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    // Persistent Unity Banner Ad for ongoing impressions
+                    UnityBannerAd(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                        tonalElevation = 2.dp,
+                        modifier = Modifier.testTag("bottom_navigation_bar")
+                    ) {
                     BottomNavItems.forEach { item ->
                         val selected = currentRoute == item.route
 
@@ -125,16 +141,16 @@ fun MainAppContent(viewModel: MainViewModel) {
                                 if (item.isPrimaryAction) {
                                     Box(
                                         modifier = Modifier
-                                            .size(46.dp)
+                                            .size(44.dp)
                                             .clip(CircleShape)
-                                            .background(com.example.ui.theme.AmberPrimary),
+                                            .background(MaterialTheme.colorScheme.primary),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = item.selectedIcon,
                                             contentDescription = item.title,
-                                            tint = Color.Black,
-                                            modifier = Modifier.size(24.dp)
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(22.dp)
                                         )
                                     }
                                 } else {
@@ -147,22 +163,22 @@ fun MainAppContent(viewModel: MainViewModel) {
                             },
                             label = {
                                 Text(
-                                    text = item.title.uppercase(),
-                                    fontSize = 9.sp,
-                                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                                    letterSpacing = 0.5.sp
+                                    text = item.title,
+                                    fontSize = 10.sp,
+                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = com.example.ui.theme.AmberPrimary,
-                                selectedTextColor = com.example.ui.theme.AmberPrimary,
-                                unselectedIconColor = com.example.ui.theme.TextMutedDark,
-                                unselectedTextColor = com.example.ui.theme.TextMutedDark,
-                                indicatorColor = Color(0x22F59E0B)
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                             ),
                             modifier = Modifier.testTag("nav_item_${item.title.lowercase()}")
                         )
                     }
+                }
                 }
             }
         }

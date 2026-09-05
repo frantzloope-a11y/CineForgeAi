@@ -75,6 +75,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _prefilledPrompt = MutableStateFlow<String?>(null)
     val prefilledPrompt: StateFlow<String?> = _prefilledPrompt.asStateFlow()
 
+    // Video generation count for balanced ad frequency (1 interstitial per 2 video creations)
+    private val _videoCreationCount = MutableStateFlow(0)
+    val videoCreationCount: StateFlow<Int> = _videoCreationCount.asStateFlow()
+
+    /**
+     * Increments creation count and returns whether an interstitial ad should be triggered.
+     * Policy: Shows ad after every 2 creations (count % 2 == 0).
+     */
+    fun shouldShowInterstitialAd(): Boolean {
+        _videoCreationCount.value += 1
+        return _videoCreationCount.value % 2 == 0
+    }
+
     fun setPrefilledPrompt(prompt: String) {
         _prefilledPrompt.value = prompt
     }

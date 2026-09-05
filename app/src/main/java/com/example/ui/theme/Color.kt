@@ -32,17 +32,17 @@ val TextSecondaryDark = Color(0xFFCBD5E1) // slate-300
 val TextTertiaryDark = Color(0xFF94A3B8)  // slate-400
 val TextMutedDark = Color(0xFF64748B)     // slate-500
 
-// Light Theme Palette (Warm Editorial Contrast)
-val LightBackground = Color(0xFFF8FAFC)
-val LightSurface = Color(0xFFFFFFFF)
-val LightCard = Color(0xFFFFFFFF)
-val LightCardElevated = Color(0xFFF1F5F9)
-val LightBorder = Color(0xFFE2E8F0)
-val LightGlass = Color(0xCCFFFFFF)
-val LightGlassBorder = Color(0x1F000000)
-val TextPrimaryLight = Color(0xFF0F172A)
-val TextSecondaryLight = Color(0xFF334155)
-val TextTertiaryLight = Color(0xFF64748B)
+// iOS-inspired Minimalist Light Palette
+val LightBackground = Color(0xFFF2F2F7) // iOS system grouped background
+val LightSurface = Color(0xFFFFFFFF)    // iOS secondary grouped background / pure white
+val LightCard = Color(0xFFFFFFFF)       // Crisp white cards
+val LightCardElevated = Color(0xFFE5E5EA)
+val LightBorder = Color(0xFFE5E5EA)     // iOS subtle separator
+val LightGlass = Color(0xE6FFFFFF)
+val LightGlassBorder = Color(0x1A000000)
+val TextPrimaryLight = Color(0xFF1C1C1E)   // iOS label dark
+val TextSecondaryLight = Color(0xFF3A3A3C) // iOS secondary label
+val TextTertiaryLight = Color(0xFF8E8E93)  // iOS tertiary label / light gray
 
 // Gradients (Sophisticated Dark)
 val PrimaryGradient = Brush.horizontalGradient(
@@ -58,6 +58,14 @@ val HeroCardGradient = Brush.linearGradient(
         Color(0xFF181D2A),
         Color(0xFF121520),
         Color(0xFF0A0A0A)
+    )
+)
+
+val LightHeroCardGradient = Brush.linearGradient(
+    colors = listOf(
+        Color(0xFFFFFFFF),
+        Color(0xFFF2F5F9),
+        Color(0xFFE9EEF5)
     )
 )
 

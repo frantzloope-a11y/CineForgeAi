@@ -169,10 +169,10 @@ fun ExploreScreen(
                     val isSelected = filter == selectedFilter
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isSelected) ElectricIndigo.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surfaceVariant,
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                         border = BorderStroke(
                             width = if (isSelected) 1.5.dp else 1.dp,
-                            color = if (isSelected) CyanAccent else MaterialTheme.colorScheme.outlineVariant
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                         ),
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
@@ -180,7 +180,7 @@ fun ExploreScreen(
                     ) {
                         Text(
                             text = filter,
-                            color = if (isSelected) CyanAccent else MaterialTheme.colorScheme.onSurface,
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
@@ -308,7 +308,7 @@ fun ExploreScreen(
 
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = CyanAccent,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable {
@@ -322,7 +322,7 @@ fun ExploreScreen(
                             ) {
                                 Text(
                                     text = "Try This →",
-                                    color = Color.Black,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )

@@ -31,24 +31,24 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = OrangeDeep,
+    primary = Color(0xFF007AFF), // iOS System Blue for clear crisp actions
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFFEF3C7), // Amber 100
-    onPrimaryContainer = Color(0xFF78350F), // Amber 900
-    secondary = AmberPrimary,
-    onSecondary = Color.Black,
-    secondaryContainer = LightCardElevated,
-    onSecondaryContainer = Color(0xFF0F172A),
-    tertiary = CyanAccent,
-    onTertiary = Color.Black,
+    primaryContainer = Color(0xFFE5F1FF),
+    onPrimaryContainer = Color(0xFF0040DD),
+    secondary = Color(0xFF5856D6), // iOS Indigo
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFEBEBF5),
+    onSecondaryContainer = Color(0xFF1C1C1E),
+    tertiary = Color(0xFF34C759), // iOS System Green
+    onTertiary = Color.White,
     background = LightBackground,
     onBackground = TextPrimaryLight,
     surface = LightSurface,
     onSurface = TextPrimaryLight,
-    surfaceVariant = LightCardElevated,
+    surfaceVariant = LightCard,
     onSurfaceVariant = TextSecondaryLight,
     outline = LightBorder,
-    outlineVariant = LightGlassBorder
+    outlineVariant = Color(0xFFE5E5EA).copy(alpha = 0.6f)
 )
 
 @Composable

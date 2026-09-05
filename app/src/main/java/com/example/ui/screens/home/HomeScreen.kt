@@ -78,6 +78,7 @@ import com.example.ui.theme.CyanAccent
 import com.example.ui.theme.ElectricIndigo
 import com.example.ui.theme.EmeraldGlow
 import com.example.ui.theme.HeroCardGradient
+import com.example.ui.theme.LightHeroCardGradient
 import com.example.ui.theme.OrangeAccent
 import com.example.ui.theme.OrangeDeep
 import com.example.ui.theme.PrimaryGradient
@@ -167,13 +168,13 @@ fun HomeScreen(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .testTag("theme_toggle_button")
                     ) {
                         Icon(
                             imageVector = if (themeMode == ThemeMode.DARK) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = "Toggle Theme",
-                            tint = if (themeMode == ThemeMode.DARK) AmberPrimary else CyanAccent,
+                            tint = if (themeMode == ThemeMode.DARK) AmberPrimary else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -185,7 +186,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .testTag("settings_button")
                     ) {
                         Icon(
@@ -201,13 +202,13 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(14.dp))
         }
 
-        // HERO CARD: "Turn Words Into Worlds" (Sophisticated Dark)
+        // HERO CARD: "Turn Words Into Worlds" (Dynamic Theme Adaptive)
         item {
             Surface(
                 shape = RoundedCornerShape(26.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                border = BorderStroke(1.dp, Color(0x33F59E0B)),
-                tonalElevation = 6.dp,
+                border = BorderStroke(1.dp, if (themeMode == ThemeMode.DARK) Color(0x33F59E0B) else MaterialTheme.colorScheme.outlineVariant),
+                tonalElevation = if (themeMode == ThemeMode.DARK) 6.dp else 1.dp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("hero_video_card")
@@ -215,14 +216,14 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(HeroCardGradient)
+                        .background(if (themeMode == ThemeMode.DARK) HeroCardGradient else LightHeroCardGradient)
                         .padding(22.dp)
                 ) {
                     Column {
                         // Badge
                         Text(
                             text = "HERO FEATURE",
-                            color = AmberPrimary,
+                            color = if (themeMode == ThemeMode.DARK) AmberPrimary else MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 2.sp
@@ -239,7 +240,7 @@ fun HomeScreen(
                         Text(
                             text = "Into Worlds.",
                             style = MaterialTheme.typography.displayMedium,
-                            color = AmberBright,
+                            color = if (themeMode == ThemeMode.DARK) AmberBright else MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Black
                         )
 
@@ -290,7 +291,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(22.dp))
         }
 
-        // QUICK TOOLS GRID (Sophisticated Dark)
+        // QUICK TOOLS GRID (Theme-Adaptive & Clean)
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -300,12 +301,12 @@ fun HomeScreen(
                 Text(
                     text = "Quick Tools",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextSecondaryDark,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "VIEW ALL",
-                    color = AmberPrimary,
+                    color = if (themeMode == ThemeMode.DARK) AmberPrimary else MaterialTheme.colorScheme.primary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
@@ -548,8 +549,8 @@ private fun QuickToolGridItem(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF0F172A).copy(alpha = 0.65f),
-        border = BorderStroke(1.dp, Color(0x1AFFFFFF)),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
@@ -580,7 +581,7 @@ private fun QuickToolGridItem(
                 text = title,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
-                color = TextTertiaryDark,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 lineHeight = 14.sp
             )

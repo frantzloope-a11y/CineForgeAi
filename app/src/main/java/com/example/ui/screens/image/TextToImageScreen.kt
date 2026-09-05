@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Refresh
@@ -53,6 +54,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
+import com.example.ads.UnityAdsManager
 import com.example.data.model.CreationEntity
 import com.example.data.repository.GenerationStage
 import com.example.ui.components.AspectRatioSelector
@@ -73,6 +77,7 @@ fun TextToImageScreen(
     viewModel: MainViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val genState by viewModel.imageGenState.collectAsState()
 
     var prompt by remember { mutableStateOf("") }
@@ -350,20 +355,87 @@ fun TextToImageScreen(
                         Spacer(modifier = Modifier.height(28.dp))
                     }
 
-                    // Main Action CTA: GENERATE ARTWORK
+                    // Main Action CTA: GENERATE ARTWORK (triggers Interstitial ad after every 2 creations)
                     item {
                         GradientButton(
                             text = "GENERATE ARTWORK ✦",
                             onClick = {
-                                viewModel.generateTextToImage(
-                                    prompt = prompt.ifBlank { "Futuristic architectural masterpiece surrounded by cascading waterfalls, golden hour, Octane render" },
-                                    ratio = selectedRatio,
-                                    copies = selectedCopies
-                                )
+                                val activity = context as? Activity
+                                val launchGen = {
+                                    viewModel.generateTextToImage(
+                                        prompt = prompt.ifBlank { "Futuristic architectural masterpiece surrounded by cascading waterfalls, golden hour, Octane render" },
+                                        ratio = selectedRatio,
+                                        copies = selectedCopies
+                                    )
+                                }
+
+                                val shouldShowAd = viewModel.shouldShowInterstitialAd()
+                                if (shouldShowAd && activity != null) {
+                                    UnityAdsManager.showInterstitial(activity, onAdClosed = launchGen)
+                                } else {
+                                    launchGen()
+                                }
                             },
                             height = 58.dp,
                             testTag = "generate_artwork_button"
                         )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Rewarded Ad Option for 4x Variations
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    val activity = context as? Activity
+                                    if (activity != null) {
+                                        UnityAdsManager.showRewarded(
+                                            activity = activity,
+                                            onRewardEarned = {
+                                                selectedCopies = 4
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    "✦ 4x Variations Batch Unlocked for Free!",
+                                                    android.widget.Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        )
+                                    }
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 13.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Watch Ad to Unlock 4x Variations Batch",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Generate 4 images at once · Powered by Rewarded Ads",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(30.dp))
                     }
