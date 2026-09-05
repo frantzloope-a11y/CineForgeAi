@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Futuristic "C" Arc -->
+    <path
+        android:pathData="M 66,35
+            C 58,26 44,26 36,34
+            C 25,45 25,63 36,74
+            C 44,82 58,82 66,73"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="26"
+                android:startY="26"
+                android:endX="70"
+                android:endY="80"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#38BDF8" />
+                <item android:offset="0.5" android:color="#818CF8" />
+                <item android:offset="1.0" android:color="#C084FC" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Cinematic Play Triangle inside the C opening -->
+    <path
+        android:pathData="M 47,43 L 64,54 L 47,65 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="46"
+                android:startY="43"
+                android:endX="66"
+                android:endY="65"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#F59E0B" />
+                <item android:offset="0.6" android:color="#EC4899" />
+                <item android:offset="1.0" android:color="#6366F1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Futuristic Spark / Starburst in the top right -->
+    <path
+        android:pathData="M 75,30 L 76.5,35 L 81.5,36.5 L 76.5,38 L 75,43 L 73.5,38 L 68.5,36.5 L 73.5,35 Z"
+        android:fillColor="#FBBF24" />
+
+    <!-- Small accent spark -->
+    <path
+        android:pathData="M 36,76 L 37,79 L 40,80 L 37,81 L 36,84 L 35,81 L 32,80 L 35,79 Z"
+        android:fillColor="#38BDF8" />
+</vector>
